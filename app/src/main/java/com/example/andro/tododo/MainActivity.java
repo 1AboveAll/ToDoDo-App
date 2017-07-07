@@ -8,9 +8,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -25,6 +27,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ArrayList<Task> toDoArrayList;
     TaskListAdapter taskListAdapter;
     ImageButton AddButton;
+    ArrayList<String> checkBox;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         AddButton=(ImageButton)findViewById(R.id.AddButton);
         AddButton.setOnClickListener(this);
         toDoArrayList=new ArrayList<>();
+        checkBox=new ArrayList<>();
         taskListAdapter=new TaskListAdapter(this,0,toDoArrayList);
         mainListView.setAdapter(taskListAdapter);
         mainListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -154,9 +158,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
     @Override
     public void listButtonClicked(View v, int pos) {
-        Intent i=new Intent(this, AddTask.class);
-        Task e=toDoArrayList.get(pos);
-        i.putExtra(ToDoOpenHelper.ID,e);
-        startActivityForResult(i,2);
+
+        if(v.getId()==R.id.editButton) {
+            Intent i = new Intent(this, AddTask.class);
+            Task e = toDoArrayList.get(pos);
+            i.putExtra(ToDoOpenHelper.ID, e);
+            startActivityForResult(i, 2);
+        }
+        if(v.getId()==R.id.itemCheckBox){
+            Boolean checked=((CheckBox)v).isChecked();
+
+            switch (v.getId()){
+                case R.id.itemCheckBox :
+                    if(checked){
+                        checkBox.add(toDoArrayList.get(pos).id+"");
+                    }
+                    else
+                    {
+                        checkBox.remove(toDoArrayList.get(pos).id+"");
+                    }
+                    break;
+            }
+        }
+
     }
 }

@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 
@@ -42,12 +43,14 @@ public class TaskListAdapter extends ArrayAdapter<Task>{
         TextView timeTextView;
         TextView priority;
         Button editButton;
-        public ToDoDoViewHolder(TextView titleTextView, TextView dateTextView, TextView timeTextView,TextView priority,Button editButton) {
+        CheckBox itemCheckBox;
+        public ToDoDoViewHolder(TextView titleTextView, TextView dateTextView, TextView timeTextView,TextView priority,Button editButton,CheckBox itemCheckBox) {
             this.titleTextView = titleTextView;
             this.dateTextView = dateTextView;
             this.timeTextView = timeTextView;
             this.editButton=editButton;
             this.priority=priority;
+            this.itemCheckBox=itemCheckBox;
         }
     }
     @NonNull
@@ -61,7 +64,8 @@ public class TaskListAdapter extends ArrayAdapter<Task>{
             TextView timeTextView =(TextView)convertView.findViewById(R.id.timeTextView);
             TextView priority=(TextView)convertView.findViewById(R.id.priority);
             Button editButton=(Button)convertView.findViewById(R.id.editButton);
-            ToDoDoViewHolder toDoDoViewHolder=new ToDoDoViewHolder(titleTextView,timeTextView,dateTextView,priority,editButton);
+            CheckBox itemCheckbox=(CheckBox)convertView.findViewById(R.id.itemCheckBox);
+            ToDoDoViewHolder toDoDoViewHolder=new ToDoDoViewHolder(titleTextView,timeTextView,dateTextView,priority,editButton,itemCheckbox);
             convertView.setTag(toDoDoViewHolder);
         }
         Task task=toDoArrayList.get(position);
@@ -74,7 +78,14 @@ public class TaskListAdapter extends ArrayAdapter<Task>{
             @Override
             public void onClick(View view) {
                 if(listButtonClickListener != null)
-                listButtonClickListener.listButtonClicked(view, position);
+                    listButtonClickListener.listButtonClicked(view, position);
+            }
+        });
+        toDoDoViewHolder.itemCheckBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(listButtonClickListener != null)
+                    listButtonClickListener.listButtonClicked(view, position);
             }
         });
         return convertView;
