@@ -1,5 +1,6 @@
 package com.example.andro.tododo;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -13,19 +14,17 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.ThreadPoolExecutor;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener,TaskListAdapter.OnListButtonClickedListener {
     ListView mainListView;
     ArrayList<Task> toDoArrayList;
     TaskListAdapter taskListAdapter;
     ImageButton AddButton;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,7 +77,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
         populateToDo();
     }
-
     @Override
     public void onClick(View view) {
         ImageButton imageButton=(ImageButton)view;
@@ -87,7 +85,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             startActivityForResult(i,1);
         }
     }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode==1){
@@ -108,15 +105,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
     }
-
-
     public void addToToDo(){
         ToDoOpenHelper toDoOpenHelper = ToDoOpenHelper.toDoOpenHelperInstance(this);
         SQLiteDatabase database=toDoOpenHelper.getWritableDatabase();
         String addQuery="select * from "+ToDoOpenHelper.TABLE_NAME+" where "+ToDoOpenHelper.ID+" = (select MAX("+ToDoOpenHelper.ID+") from "+ToDoOpenHelper.TABLE_NAME+" );";
         Cursor cursor=database.rawQuery(addQuery,null);
         if(cursor.moveToNext()) {
-
             String formatted="";
             String title = cursor.getString(cursor.getColumnIndex(ToDoOpenHelper.TITLE));
             String description = cursor.getString(cursor.getColumnIndex(ToDoOpenHelper.DESCRIPTION));
@@ -134,8 +128,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 taskListAdapter.notifyDataSetChanged();
             }
         }
-
-
     public void populateToDo(){
         String formatted="";
         ToDoOpenHelper toDoOpenHelper = ToDoOpenHelper.toDoOpenHelperInstance(this);
@@ -157,19 +149,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             int priority=cursor.getInt(cursor.getColumnIndex(ToDoOpenHelper.PRIORITY));
             Task t= new Task(id,title,time,formatted,description,priority);
             toDoArrayList.add(t);
-
         }
         taskListAdapter.notifyDataSetChanged();
     }
-
-
-//    public void listButtonClicked(View v, int pos) {
-//        Button button=(Button)v;
-//        if(button.getId()==R.id.editButton){
-//            Intent i= new Intent(this,AddTask.class);
-//            i.putExtra(ToDoOpenHelper.ID,toDoArrayList.get(pos));
-//            startActivityForResult(i,2);
-//            Toast.makeText(this,"Edit",Toast.LENGTH_SHORT);
-//        }
-//    }
+    @Override
+    public void listButtonClicked(View v, int pos) {
+        Intent i=new Intent(this, AddTask.class);
+        Task e=toDoArrayList.get(pos);
+        i.putExtra(ToDoOpenHelper.ID,e);
+        startActivityForResult(i,2);
+    }
 }
