@@ -5,10 +5,15 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.design.widget.BaseTransientBottomBar;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -180,6 +185,57 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     break;
             }
         }
+    }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater=getMenuInflater();
+        inflater.inflate(R.menu.main_menu,menu);
+        return true;
+    }
+    public boolean onOptionsItemSelected(MenuItem item){
+        switch (item.getItemId()) {
+            case R.id.delete_Selected:
+                if (checkBox.size() > 0) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setTitle("Remove Task/s");
+                    builder.setCancelable(false);
+                    builder.setMessage("You sure you want to remove selected tasks");
+                    builder.setPositiveButton("Sure", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int it) {
+
+                            ToDoOpenHelper toDoOpenHelper = ToDoOpenHelper.toDoOpenHelperInstance(MainActivity.this);
+                            SQLiteDatabase database = toDoOpenHelper.getWritableDatabase();
+                            for (String i : checkBox) {
+                                database.delete(ToDoOpenHelper.TABLE_NAME, ToDoOpenHelper.ID + " = " + i, null);
+                            }
+                            checkBox.clear();
+                            populateToDo();
+
+                        }
+                    });
+                    builder.setNegativeButton("Not Sure", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                        }
+                    });
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+
+                    return true;
+                } else {
+                    Toast.makeText(this, "Select Tasks Before Deleting", Toast.LENGTH_SHORT).show();
+                    //Snackbar.make(mainListView,"Select Tasks Before Deleting", BaseTransientBottomBar.LENGTH_SHORT).show();
+                }
+                return true;
+
+            case R.id.help:
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }
