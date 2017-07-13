@@ -193,7 +193,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.delete_Selected:
                 if (checkBox.size() > 0) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                    builder.setTitle("Remove Task/s");
+                    if(checkBox.size()==1) {
+                        builder.setTitle("Remove Selected Task");
+                    }
+                    else
+                        builder.setTitle("Remove Selected Tasks");
                     builder.setCancelable(false);
                     builder.setMessage("You sure you want to remove selected tasks");
                     builder.setPositiveButton("Sure", new DialogInterface.OnClickListener() {
