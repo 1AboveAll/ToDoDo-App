@@ -77,6 +77,7 @@ public class TaskListAdapter extends ArrayAdapter<Task>{
         Boolean checked=toDoDoViewHolder.itemCheckBox.isChecked();
         if(checked==true){
             toDoDoViewHolder.itemCheckBox.setChecked(!checked);
+            //To Disable Checkbox Animation
             toDoDoViewHolder.itemCheckBox.jumpDrawablesToCurrentState();
         }
         toDoDoViewHolder.editButton.setOnClickListener(new View.OnClickListener() {
