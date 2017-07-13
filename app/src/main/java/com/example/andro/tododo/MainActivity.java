@@ -172,9 +172,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         if(v.getId()==R.id.itemCheckBox){
             Boolean checked=((CheckBox)v).isChecked();
-
-            switch (v.getId()){
-                case R.id.itemCheckBox :
                     if(checked){
                         checkBox.add(toDoArrayList.get(pos).id+"");
                     }
@@ -182,8 +179,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     {
                         checkBox.remove(toDoArrayList.get(pos).id+"");
                     }
-                    break;
-            }
         }
     }
 

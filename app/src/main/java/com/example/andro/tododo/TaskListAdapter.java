@@ -74,6 +74,8 @@ public class TaskListAdapter extends ArrayAdapter<Task>{
         toDoDoViewHolder.dateTextView.setText(task.date);
         toDoDoViewHolder.timeTextView.setText(task.time);
         toDoDoViewHolder.priority.setText("Priority is "+task.priority);
+
+
         toDoDoViewHolder.editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
