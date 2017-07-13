@@ -9,7 +9,7 @@ Issues - 07/07/2017
 Functionalities Yet to Add - 07/07/2017
 1. Alarm to Notify User
 2. Notification to Notify User
-3. Selecting Multiple Tasks at Once - Added (13-07-2017)on
+3. Selecting Multiple Tasks at Once - Added on 13-07-2017
 
 
 
