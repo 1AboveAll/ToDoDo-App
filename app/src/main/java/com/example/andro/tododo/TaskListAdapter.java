@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.example.andro.tododo.R.id.editButton;
 
@@ -23,11 +24,11 @@ import static com.example.andro.tododo.R.id.editButton;
  * Created by andro on 28-06-2017.
  */
 
-public class TaskListAdapter extends ArrayAdapter<Task>{
-    ArrayList<Task> toDoArrayList;
+public class TaskListAdapter extends ArrayAdapter<TaskRoom>{
+    List<TaskRoom> toDoArrayList;
     Context context;
     OnListButtonClickedListener listButtonClickListener;
-    public TaskListAdapter(@NonNull Context context, @LayoutRes int resource , ArrayList<Task> toDoArrayList) {
+    public TaskListAdapter(@NonNull Context context, @LayoutRes int resource , List<TaskRoom> toDoArrayList) {
         super(context,0,toDoArrayList);
         this.context=context;
         this.toDoArrayList=toDoArrayList;
@@ -68,12 +69,14 @@ public class TaskListAdapter extends ArrayAdapter<Task>{
             ToDoDoViewHolder toDoDoViewHolder=new ToDoDoViewHolder(titleTextView,timeTextView,dateTextView,priority,editButton,itemCheckbox);
             convertView.setTag(toDoDoViewHolder);
         }
-        Task task=toDoArrayList.get(position);
+        TaskRoom task=toDoArrayList.get(position);
         ToDoDoViewHolder toDoDoViewHolder =(ToDoDoViewHolder)convertView.getTag();
-        toDoDoViewHolder.titleTextView.setText(task.title);
-        toDoDoViewHolder.dateTextView.setText(task.date);
-        toDoDoViewHolder.timeTextView.setText(task.time);
-        toDoDoViewHolder.priority.setText("Priority is "+task.priority);
+        toDoDoViewHolder.titleTextView.setText(task.getTitle());
+
+
+        toDoDoViewHolder.dateTextView.setText(task.getDate()+"");
+        toDoDoViewHolder.timeTextView.setText(task.getTime());
+        toDoDoViewHolder.priority.setText("Priority is "+task.getPriority());
         Boolean checked=toDoDoViewHolder.itemCheckBox.isChecked();
         if(checked==true){
             toDoDoViewHolder.itemCheckBox.setChecked(!checked);

@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.support.design.widget.BaseTransientBottomBar;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
@@ -25,11 +26,12 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.ThreadPoolExecutor;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,TaskListAdapter.OnListButtonClickedListener {
     ListView mainListView;
-    ArrayList<Task> toDoArrayList;
+    List<TaskRoom> toDoArrayList;
     TaskListAdapter taskListAdapter;
     ImageButton AddButton;
     ArrayList<String> checkBox;
@@ -37,8 +39,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mainListView=(ListView)findViewById(R.id.mainListView);
-        AddButton=(ImageButton)findViewById(R.id.AddButton);
+        mainListView=findViewById(R.id.mainListView);
+        AddButton=findViewById(R.id.AddButton);
         AddButton.setOnClickListener(this);
         toDoArrayList=new ArrayList<>();
         checkBox=new ArrayList<>();
@@ -48,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent it=new Intent(MainActivity.this,TaskView.class);
-                Task e=toDoArrayList.get(i);
+                TaskRoom e=toDoArrayList.get(i);
                 it.putExtra(ToDoOpenHelper.ID,e);
                 startActivityForResult(it,3);
             }
@@ -64,13 +66,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 builder.setPositiveButton("Sure", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int it) {
-                        Task e=toDoArrayList.get(pos);
-                        int id=e.id;
-                        ToDoOpenHelper toDoOpenHelper = ToDoOpenHelper.toDoOpenHelperInstance(MainActivity.this);
-                        SQLiteDatabase database=toDoOpenHelper.getWritableDatabase();
-                        database.delete(ToDoOpenHelper.TABLE_NAME,ToDoOpenHelper.ID+" = "+id,null);
+                        TaskRoom e=toDoArrayList.get(pos);
+//                        int id=e.getId();
+//                        ToDoOpenHelper toDoOpenHelper = ToDoOpenHelper.toDoOpenHelperInstance(MainActivity.this);
+//                        SQLiteDatabase database=toDoOpenHelper.getWritableDatabase();
+//                        database.delete(ToDoOpenHelper.TABLE_NAME,ToDoOpenHelper.ID+" = "+id,null);
+//                        populateToDo();
+                        TaskDatabase taskDatabase=TaskDatabase.getInstance(MainActivity.this);
+                        taskDatabase.taskDao().deleteTask(e);
                         populateToDo();
-                        Toast.makeText(MainActivity.this,"Task "+e.title+" Removed Successfully",Toast.LENGTH_LONG).show();
+                        Toast.makeText(MainActivity.this,"Task "+e.getTitle()+" Removed Successfully",Toast.LENGTH_LONG).show();
                     }
                 });
                 builder.setNegativeButton("Not Sure", new DialogInterface.OnClickListener() {
@@ -115,69 +120,94 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
     public void addToToDo(){
-        ToDoOpenHelper toDoOpenHelper = ToDoOpenHelper.toDoOpenHelperInstance(this);
-        SQLiteDatabase database=toDoOpenHelper.getWritableDatabase();
-        String addQuery="select * from "+ToDoOpenHelper.TABLE_NAME+" where "+ToDoOpenHelper.ID+" = (select MAX("+ToDoOpenHelper.ID+") from "+ToDoOpenHelper.TABLE_NAME+" );";
-        Cursor cursor=database.rawQuery(addQuery,null);
-        if(cursor.moveToNext()) {
-            String formatted="";
-            String title = cursor.getString(cursor.getColumnIndex(ToDoOpenHelper.TITLE));
-            String description = cursor.getString(cursor.getColumnIndex(ToDoOpenHelper.DESCRIPTION));
-            String time = cursor.getString(cursor.getColumnIndex(ToDoOpenHelper.TIME));
-            int id = cursor.getInt(cursor.getColumnIndex(ToDoOpenHelper.ID));
-            long date = cursor.getLong(cursor.getColumnIndex(ToDoOpenHelper.DATE));
-            int priority = cursor.getInt(cursor.getColumnIndex(ToDoOpenHelper.PRIORITY));
-            if (date != 0) {
-                Date d = new Date(date);
-                DateFormat format = new SimpleDateFormat("dd/MM/yyyy");
-                formatted = format.format(d);
-            }
-                Task t = new Task(id, title, time, formatted, description, priority);
-                toDoArrayList.add(t);
-                taskListAdapter.notifyDataSetChanged();
-            }
+
+//        ToDoOpenHelper toDoOpenHelper = ToDoOpenHelper.toDoOpenHelperInstance(this);
+//        SQLiteDatabase database=toDoOpenHelper.getWritableDatabase();
+//        String addQuery="select * from "+ToDoOpenHelper.TABLE_NAME+" where "+ToDoOpenHelper.ID+" = (select MAX("+ToDoOpenHelper.ID+") from "+ToDoOpenHelper.TABLE_NAME+" );";
+//        Cursor cursor=database.rawQuery(addQuery,null);
+//        if(cursor.moveToNext()) {
+//            String formatted="";
+//            String title = cursor.getString(cursor.getColumnIndex(ToDoOpenHelper.TITLE));
+//            String description = cursor.getString(cursor.getColumnIndex(ToDoOpenHelper.DESCRIPTION));
+//            String time = cursor.getString(cursor.getColumnIndex(ToDoOpenHelper.TIME));
+//            int id = cursor.getInt(cursor.getColumnIndex(ToDoOpenHelper.ID));
+//            long date = cursor.getLong(cursor.getColumnIndex(ToDoOpenHelper.DATE));
+//            int priority = cursor.getInt(cursor.getColumnIndex(ToDoOpenHelper.PRIORITY));
+//            if (date != 0) {
+//                Date d = new Date(date);
+//                DateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+//                formatted = format.format(d);
+//            }
+//                Task t = new Task(id, title, time, formatted, description, priority);
+//                toDoArrayList.add(t);
+//                taskListAdapter.notifyDataSetChanged();
+//            }
+
+        TaskDatabase taskDatabase=TaskDatabase.getInstance(this);
+        List<TaskRoom> list=taskDatabase.taskDao().addNewTask();
+        toDoArrayList.addAll(list);
+        taskListAdapter.notifyDataSetChanged();
         }
     public void populateToDo(){
-        String formatted="";
-        ToDoOpenHelper toDoOpenHelper = ToDoOpenHelper.toDoOpenHelperInstance(this);
-        SQLiteDatabase database=toDoOpenHelper.getReadableDatabase();
-        toDoArrayList.clear();
-        String addQuery="select * from "+ToDoOpenHelper.TABLE_NAME+" order by "+ToDoOpenHelper.PRIORITY+" desc;";
-        Cursor cursor=database.rawQuery(addQuery,null);
-        while(cursor.moveToNext()){
-            String title=cursor.getString(cursor.getColumnIndex(ToDoOpenHelper.TITLE));
-            String description=cursor.getString(cursor.getColumnIndex(ToDoOpenHelper.DESCRIPTION));
-            String time=cursor.getString(cursor.getColumnIndex(ToDoOpenHelper.TIME));
-            int id=cursor.getInt(cursor.getColumnIndex(ToDoOpenHelper.ID));
-            long date=cursor.getLong(cursor.getColumnIndex(ToDoOpenHelper.DATE));
-            if(date!=0){
-                Date d=new Date(date);
-                DateFormat format=new SimpleDateFormat("dd/MM/yyyy");
-                formatted=format.format(d);
-            }
-            int priority=cursor.getInt(cursor.getColumnIndex(ToDoOpenHelper.PRIORITY));
-            Task t= new Task(id,title,time,formatted,description,priority);
-            toDoArrayList.add(t);
-        }
-        taskListAdapter.notifyDataSetChanged();
+//        String formatted="";
+//        ToDoOpenHelper toDoOpenHelper = ToDoOpenHelper.toDoOpenHelperInstance(this);
+//        SQLiteDatabase database=toDoOpenHelper.getReadableDatabase();
+//        toDoArrayList.clear();
+//        String addQuery="select * from "+ToDoOpenHelper.TABLE_NAME+" order by "+ToDoOpenHelper.PRIORITY+" desc;";
+//        Cursor cursor=database.rawQuery(addQuery,null);
+//        while(cursor.moveToNext()){
+//            String title=cursor.getString(cursor.getColumnIndex(ToDoOpenHelper.TITLE));
+//            String description=cursor.getString(cursor.getColumnIndex(ToDoOpenHelper.DESCRIPTION));
+//            String time=cursor.getString(cursor.getColumnIndex(ToDoOpenHelper.TIME));
+//            int id=cursor.getInt(cursor.getColumnIndex(ToDoOpenHelper.ID));
+//            long date=cursor.getLong(cursor.getColumnIndex(ToDoOpenHelper.DATE));
+//            if(date!=0){
+//                Date d=new Date(date);
+//                DateFormat format=new SimpleDateFormat("dd/MM/yyyy");
+//                formatted=format.format(d);
+//            }
+//            int priority=cursor.getInt(cursor.getColumnIndex(ToDoOpenHelper.PRIORITY));
+//            TaskRoom t= new Task(id,title,time,formatted,description,priority);
+//            toDoArrayList.add(t);
+//        }
+//        taskListAdapter.notifyDataSetChanged();
+
+                TaskDatabase taskDatabase=TaskDatabase.getInstance(this);
+//        new AsyncTask<Void, Void, List<TaskRoom>>() {
+//            @Override
+//            protected List<TaskRoom> doInBackground(Void... voids) {
+                List<TaskRoom> list=taskDatabase.taskDao().getTasks();
+//
+//                return list;
+//            }
+//            @Override
+//            protected void onPostExecute(List<TaskRoom>list){
+                toDoArrayList.clear();
+                toDoArrayList.addAll(list);
+                taskListAdapter.notifyDataSetChanged();
+//            }
+
+//        };
+
+
     }
     @Override
     public void listButtonClicked(View v, int pos) {
 
         if(v.getId()==R.id.editButton) {
             Intent i = new Intent(this, AddTask.class);
-            Task e = toDoArrayList.get(pos);
+            TaskRoom e = toDoArrayList.get(pos);
             i.putExtra(ToDoOpenHelper.ID, e);
             startActivityForResult(i, 2);
         }
         if(v.getId()==R.id.itemCheckBox){
             Boolean checked=((CheckBox)v).isChecked();
                     if(checked){
-                        checkBox.add(toDoArrayList.get(pos).id+"");
+                        checkBox.add(toDoArrayList.get(pos).getId()+"");
                     }
                     else
                     {
-                        checkBox.remove(toDoArrayList.get(pos).id+"");
+                        checkBox.remove(toDoArrayList.get(pos).getId()+"");
                     }
         }
     }
@@ -204,10 +234,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         @Override
                         public void onClick(DialogInterface dialogInterface, int it) {
 
-                            ToDoOpenHelper toDoOpenHelper = ToDoOpenHelper.toDoOpenHelperInstance(MainActivity.this);
-                            SQLiteDatabase database = toDoOpenHelper.getWritableDatabase();
-                            for (String i : checkBox) {
-                                database.delete(ToDoOpenHelper.TABLE_NAME, ToDoOpenHelper.ID + " = " + i, null);
+                            TaskDatabase taskDatabase=TaskDatabase.getInstance(MainActivity.this);
+                            for (int i=0;i<checkBox.size();i++) {
+                                taskDatabase.taskDao().deleteUsingID(checkBox.get(i));
                             }
                             checkBox.clear();
                             populateToDo();

@@ -9,6 +9,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import java.util.Calendar;
+
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,6 +26,7 @@ import android.widget.TimePicker;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 public class AddTask extends AppCompatActivity {
     TextView addTask;
@@ -122,17 +125,36 @@ public class AddTask extends AppCompatActivity {
         if(i.getExtras()!=null){
             finishButton.setText("Finish Editing");
             addTask.setText("Edit Task");
-            final Task e=(Task)i.getSerializableExtra(ToDoOpenHelper.ID);
-            int id=e.id;
-            ToDoOpenHelper toDoOpenHelper = ToDoOpenHelper.toDoOpenHelperInstance(AddTask.this);
-            SQLiteDatabase database=toDoOpenHelper.getWritableDatabase();
-            String addQuery="select * from "+ToDoOpenHelper.TABLE_NAME+" where "+ToDoOpenHelper.ID+" = "+id+" ;";
-            Cursor cursor=database.rawQuery(addQuery,null);
-            if(cursor.moveToNext()) {
-                titleEditText.setText(cursor.getString(cursor.getColumnIndex(ToDoOpenHelper.TITLE)));
-                descriptionEditText.setText(cursor.getString(cursor.getColumnIndex(ToDoOpenHelper.DESCRIPTION)));
-                timeEditText.setText(cursor.getString(cursor.getColumnIndex(ToDoOpenHelper.TIME)));
-                epochTime=cursor.getLong(cursor.getColumnIndex(ToDoOpenHelper.DATE));
+            final TaskRoom e=(TaskRoom) i.getSerializableExtra(ToDoOpenHelper.ID);
+            int id=e.getId();
+            TaskDatabase taskDatabase=TaskDatabase.getInstance(this);
+            List<TaskRoom> list=taskDatabase.taskDao().selectWhereID(id+"");
+//            ToDoOpenHelper toDoOpenHelper = ToDoOpenHelper.toDoOpenHelperInstance(AddTask.this);
+//            SQLiteDatabase database=toDoOpenHelper.getWritableDatabase();
+//            String addQuery="select * from "+ToDoOpenHelper.TABLE_NAME+" where "+ToDoOpenHelper.ID+" = "+id+" ;";
+//            Cursor cursor=database.rawQuery(addQuery,null);
+
+//            if(cursor.moveToNext()) {
+//                titleEditText.setText(cursor.getString(cursor.getColumnIndex(ToDoOpenHelper.TITLE)));
+//                descriptionEditText.setText(cursor.getString(cursor.getColumnIndex(ToDoOpenHelper.DESCRIPTION)));
+//                timeEditText.setText(cursor.getString(cursor.getColumnIndex(ToDoOpenHelper.TIME)));
+//                epochTime=cursor.getLong(cursor.getColumnIndex(ToDoOpenHelper.DATE));
+//                if(epochTime==0){
+//                    dateEditText.setText("");
+//                }else {
+//                    Date d = new Date(epochTime);
+//                    DateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+//                    String formatted = format.format(d);
+//                    dateEditText.setText(formatted);
+//                }
+//                priorityTextView.setText("Priority is " + cursor.getString(cursor.getColumnIndex(ToDoOpenHelper.PRIORITY)));
+//                prioritySeekBar.setProgress(cursor.getInt(cursor.getColumnIndex(ToDoOpenHelper.PRIORITY)));
+//            }
+            TaskRoom taskRoom=list.get(0);
+            titleEditText.setText(taskRoom.getTitle());
+            descriptionEditText.setText(taskRoom.getDescription());
+            timeEditText.setText(taskRoom.getTime());
+            epochTime=taskRoom.getDate();
                 if(epochTime==0){
                     dateEditText.setText("");
                 }else {
@@ -141,9 +163,8 @@ public class AddTask extends AppCompatActivity {
                     String formatted = format.format(d);
                     dateEditText.setText(formatted);
                 }
-                priorityTextView.setText("Priority is " + cursor.getString(cursor.getColumnIndex(ToDoOpenHelper.PRIORITY)));
-                prioritySeekBar.setProgress(cursor.getInt(cursor.getColumnIndex(ToDoOpenHelper.PRIORITY)));
-            }
+            priorityTextView.setText("Priority is " + taskRoom.getPriority());
+            prioritySeekBar.setProgress(taskRoom.getPriority());
 
         }
 
@@ -152,37 +173,42 @@ public class AddTask extends AppCompatActivity {
             public void onClick(View view) {
 
                 int latestID=0;
-                ToDoOpenHelper toDoOpenHelper = ToDoOpenHelper.toDoOpenHelperInstance(AddTask.this);
-                //ToDoOpenHelper toDoOpenHelper=new ToDoOpenHelper(AddTask.this);
-                SQLiteDatabase database=toDoOpenHelper.getWritableDatabase();
+//                ToDoOpenHelper toDoOpenHelper = ToDoOpenHelper.toDoOpenHelperInstance(AddTask.this);
+//                //ToDoOpenHelper toDoOpenHelper=new ToDoOpenHelper(AddTask.this);
+//                SQLiteDatabase database=toDoOpenHelper.getWritableDatabase();
+                final TaskDatabase taskDatabase=TaskDatabase.getInstance(AddTask.this);
                 String title=titleEditText.getText().toString();
                 String description=descriptionEditText.getText().toString();
                 String time=timeEditText.getText().toString();
                 if(getIntent().getExtras()!=null) {
-                    Task e=(Task)getIntent().getSerializableExtra(ToDoOpenHelper.ID);
-                    latestID=e.id;
+                    TaskRoom e=(TaskRoom)getIntent().getSerializableExtra(ToDoOpenHelper.ID);
+                    latestID=e.getId();
 
                 }
                 if(latestID==0){
-                    ContentValues cv = new ContentValues();
-                    cv.put(ToDoOpenHelper.TITLE, title);
-                    cv.put(ToDoOpenHelper.DESCRIPTION, description);
-                    cv.put(ToDoOpenHelper.TIME, time);
-                    cv.put(ToDoOpenHelper.PRIORITY, priority);
-                    cv.put(ToDoOpenHelper.DATE, epochTime);
-                    database.insert(ToDoOpenHelper.TABLE_NAME, null, cv);
+//                    ContentValues cv = new ContentValues();
+//                    cv.put(ToDoOpenHelper.TITLE, title);
+//                    cv.put(ToDoOpenHelper.DESCRIPTION, description);
+//                    cv.put(ToDoOpenHelper.TIME, time);
+//                    cv.put(ToDoOpenHelper.PRIORITY, priority);
+//                    cv.put(ToDoOpenHelper.DATE, epochTime);
+                    TaskRoom e=new TaskRoom(title,time,epochTime,description,priority);
+                    taskDatabase.taskDao().insertTask(e);
                     Intent it = new Intent();
                     setResult(RESULT_OK, it);
                     finish();
+
+
                 }
                 else{
-                    ContentValues cv = new ContentValues();
-                    cv.put(ToDoOpenHelper.TITLE, title);
-                    cv.put(ToDoOpenHelper.DESCRIPTION, description);
-                    cv.put(ToDoOpenHelper.TIME, time);
-                    cv.put(ToDoOpenHelper.PRIORITY, priority);
-                    cv.put(ToDoOpenHelper.DATE, epochTime);
-                    database.update(ToDoOpenHelper.TABLE_NAME,cv,ToDoOpenHelper.ID+" = "+latestID,null);
+//                    ContentValues cv = new ContentValues();
+//                    cv.put(ToDoOpenHelper.TITLE, title);
+//                    cv.put(ToDoOpenHelper.DESCRIPTION, description);
+//                    cv.put(ToDoOpenHelper.TIME, time);
+//                    cv.put(ToDoOpenHelper.PRIORITY, priority);
+//                    cv.put(ToDoOpenHelper.DATE, epochTime);
+//                    database.update(ToDoOpenHelper.TABLE_NAME,cv,ToDoOpenHelper.ID+" = "+latestID,null);
+                    taskDatabase.taskDao().updateTask(title,time,epochTime,description,priority,latestID);
                     Intent it = new Intent();
                     setResult(RESULT_OK, it);
                     finish();

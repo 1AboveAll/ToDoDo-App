@@ -26,12 +26,12 @@ public class TaskView extends AppCompatActivity {
         description=(TextView)findViewById(R.id.description);
         taskfinishedButton=(Button)findViewById(R.id.taskCompletedButton);
         Intent i=getIntent();
-        Task e=(Task)i.getSerializableExtra(ToDoOpenHelper.ID);
-        title.setText(e.title);
-        time.setText(e.time);
-        date.setText(e.date);
-        description.setText(e.description);
-        final int id=e.id;
+        TaskRoom e=(TaskRoom)i.getSerializableExtra(ToDoOpenHelper.ID);
+        title.setText(e.getTitle());
+        time.setText(e.getTime());
+        date.setText(e.getDate()+"");
+        description.setText(e.getDescription());
+        final int id=e.getId();
         taskfinishedButton.setOnClickListener(new android.view.View.OnClickListener() {
             @Override
             public void onClick(android.view.View view) {
@@ -42,9 +42,14 @@ public class TaskView extends AppCompatActivity {
                 builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        ToDoOpenHelper toDoOpenHelper = ToDoOpenHelper.toDoOpenHelperInstance(TaskView.this);
-                        SQLiteDatabase database=toDoOpenHelper.getWritableDatabase();
-                        database.delete(ToDoOpenHelper.TABLE_NAME,ToDoOpenHelper.ID+" = "+id,null);
+
+
+//                        ToDoOpenHelper toDoOpenHelper = ToDoOpenHelper.toDoOpenHelperInstance(TaskView.this);
+//                        SQLiteDatabase database=toDoOpenHelper.getWritableDatabase();
+//                        database.delete(ToDoOpenHelper.TABLE_NAME,ToDoOpenHelper.ID+" = "+id,null);
+//
+                        TaskDatabase taskDatabase=TaskDatabase.getInstance(TaskView.this);
+                        taskDatabase.taskDao().deleteUsingID(id+"");
                         Intent it = new Intent();
                         setResult(RESULT_OK, it);
                         Toast.makeText(TaskView.this,"Task "+title.getText().toString()+" Finished",Toast.LENGTH_SHORT).show();
