@@ -125,7 +125,6 @@
                 android:paddingLeft="10dp"
                 android:gravity="left|center_vertical"
                 />
-
             <TextView
 
                 android:id="@+id/description"
@@ -136,13 +135,11 @@
                 android:textSize="20sp"
                 android:background="@color/White"
                 android:padding="10dp"
-              />
+                />
         </LinearLayout>
 
 
     </LinearLayout>
-
-
 
     <Button
         android:id="@+id/taskCompletedButton"
@@ -152,8 +149,7 @@
         android:textColor="@color/White"
         android:background="@color/colorPrimary"
         android:text="Task Finished"
-        android:textSize="20dp"
-
+        android:textSize="20sp"
         />
 
 </LinearLayout>

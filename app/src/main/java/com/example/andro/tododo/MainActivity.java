@@ -174,10 +174,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Boolean checked=((CheckBox)v).isChecked();
                     if(checked){
                         checkBox.add(toDoArrayList.get(pos).id+"");
+                        this.invalidateOptionsMenu();
                     }
                     else
                     {
                         checkBox.remove(toDoArrayList.get(pos).id+"");
+                        this.invalidateOptionsMenu();
                     }
         }
     }
@@ -186,9 +188,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater=getMenuInflater();
         inflater.inflate(R.menu.main_menu,menu);
+        MenuItem menuItem =menu.findItem(R.id.delete_Selected);
+        if(checkBox.size()==0) {
+            menuItem.setVisible(false);
+        }
+        else
+            menuItem.setVisible(true);
+
         return true;
     }
+
     public boolean onOptionsItemSelected(MenuItem item){
+
         switch (item.getItemId()) {
             case R.id.delete_Selected:
                 if (checkBox.size() > 0) {
