@@ -188,12 +188,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater=getMenuInflater();
         inflater.inflate(R.menu.main_menu,menu);
-        MenuItem menuItem =menu.findItem(R.id.delete_Selected);
+        MenuItem delete =menu.findItem(R.id.delete_Selected);
         if(checkBox.size()==0) {
-            menuItem.setVisible(false);
+            delete.setVisible(false);
         }
         else
-            menuItem.setVisible(true);
+            delete.setVisible(true);
+
 
         return true;
     }
@@ -201,6 +202,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public boolean onOptionsItemSelected(MenuItem item){
 
         switch (item.getItemId()) {
+
             case R.id.delete_Selected:
                 if (checkBox.size() > 0) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -221,6 +223,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 database.delete(ToDoOpenHelper.TABLE_NAME, ToDoOpenHelper.ID + " = " + i, null);
                             }
                             checkBox.clear();
+                            MainActivity.this.invalidateOptionsMenu();
                             populateToDo();
 
                         }
