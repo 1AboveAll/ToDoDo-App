@@ -10,9 +10,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class ToDoOpenHelper extends SQLiteOpenHelper {
 
-
-
-
     public final static String TABLE_NAME="todo";
     public final static String ID="_id";
     public final static String TITLE="title";
@@ -35,7 +32,8 @@ public class ToDoOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-       String query="create table "+TABLE_NAME+" ( "+ID+" integer primary key autoincrement"+" , "+TITLE+" text "+" , "+TIME+" text "+" , "+ DATE+" BIGINT "+" , "+DESCRIPTION+" text"+" , "+PRIORITY+" integer);";
+       String query="create table "+TABLE_NAME+" ( "+ID+" integer primary key autoincrement"+" , "+TITLE+" text "+" ," +
+               " "+TIME+" text "+" , "+ DATE+" BIGINT "+" , "+DESCRIPTION+" text"+" , "+PRIORITY+" integer);";
         db.execSQL(query);
     }
 

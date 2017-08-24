@@ -136,6 +136,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 toDoArrayList.add(t);
                 taskListAdapter.notifyDataSetChanged();
             }
+            database.close();
         }
     public void populateToDo(){
         String formatted="";
@@ -160,6 +161,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             toDoArrayList.add(t);
         }
         taskListAdapter.notifyDataSetChanged();
+        database.close();
     }
     @Override
     public void listButtonClicked(View v, int pos) {
@@ -223,6 +225,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 database.delete(ToDoOpenHelper.TABLE_NAME, ToDoOpenHelper.ID + " = " + i, null);
                             }
                             checkBox.clear();
+                            database.close();
                             MainActivity.this.invalidateOptionsMenu();
                             populateToDo();
 

@@ -173,6 +173,7 @@ public class AddTask extends AppCompatActivity {
                     database.insert(ToDoOpenHelper.TABLE_NAME, null, cv);
                     Intent it = new Intent();
                     setResult(RESULT_OK, it);
+                    database.close();
                     finish();
                 }
                 else{
@@ -185,6 +186,7 @@ public class AddTask extends AppCompatActivity {
                     database.update(ToDoOpenHelper.TABLE_NAME,cv,ToDoOpenHelper.ID+" = "+latestID,null);
                     Intent it = new Intent();
                     setResult(RESULT_OK, it);
+                    database.close();
                     finish();
                 }
             }
